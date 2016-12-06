@@ -18,7 +18,8 @@ pinsToInt ps = binToInt [if p == 'I' then '1' else '0' | p <- ps]
 solve :: Int -> String -> Bool
 solve n s = case moves s of 
               []     -> odd n
-              (x:xs) -> foldr (&&) (solve (n + 1) x) [solve (n + 1) m | m <- xs]
+              (x:xs) -> foldr control (solve (n + 1) x) [solve (n + 1) m | m <- xs]
+            where control = if odd n then (&&) else (||)
 
 -- get all moves possible from a state
 moves :: String -> [String]
