@@ -25,14 +25,14 @@ bpm :: (Int -> Int -> Bool) -> Int -> [Int] -> [Int]
     -> Set Int -> Map Int Int-> (Bool, Map Int Int, Set Int)
 bpm _ _ [] _ seen matches         = (False, matches, seen) 
 bpm func x (y:ys) yz seen matches = 
-    if not $ coprime x y && Set.notMember y seen 
-      then if Map.notMember y matches
-             then (True, (Map.insert y x matches), (Set.insert y seen))
-             else if hasMatch
-                  then (True, (Map.insert y x m), s)
-                  else bpm func x ys (y:yz) (Set.insert y s) m
-      else bpm func x ys (y:yz) seen matches
-    where (hasMatch, m, s) = bpm func (matches ! y) ((y:ys)++yz) [] (Set.insert y seen) matches
+    case not $ coprime x y && Set.notMember y seen of
+      True -> case Map.notMember k matches of
+                True -> (True, (Map.insert k x matches), (Set.insert y seen))
+                _    -> case bpm func (matches ! k) ((y:ys)++yz) [] (Set.insert y seen) matches of
+                          (True, m, s) -> (True, (Map.insert k x m), s)
+                          (_, m, s)    -> bpm func x ys (y:yz) (Set.insert y s) m
+      _    -> bpm func x ys (y:yz) seen matches
+    where k = length yz
 
 coprime :: Int -> Int -> Bool
 coprime a b = (==1) $ gcd a b
