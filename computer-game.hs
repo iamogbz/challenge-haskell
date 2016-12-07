@@ -28,7 +28,7 @@ bpm func x (y:ys) yz seen matches =
     case not $ coprime x y && Set.notMember y seen of
       True -> case Map.notMember k matches of
                 True -> (True, (Map.insert k x matches), (Set.insert y seen))
-                _    -> case bpm func (matches ! k) ((y:ys)++yz) [] (Set.insert y seen) matches of
+                _    -> case bpm func (matches ! k) (ys++yz) [] (Set.insert y seen) matches of
                           (True, m, s) -> (True, (Map.insert k x m), s)
                           (_, m, s)    -> bpm func x ys (y:yz) (Set.insert y s) m
       _    -> bpm func x ys (y:yz) seen matches
