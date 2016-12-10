@@ -1,5 +1,12 @@
 import Data.List
 
+-- INCOMPLETE SOLUTION!!!
+-- doesn't work for some test cases e.g.
+-- 36 [18,9,4] - this should give 1 4 36 [4,9] but it fails
+-- 24 [4,6,8] etc.
+-- probably do two passes, first from largest to smallest 
+-- and then in reverse for elements not used
+
 main :: IO ()
 main = do
     t <- getLine
