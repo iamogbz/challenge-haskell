@@ -14,10 +14,6 @@ main = do
 solve :: String -> Bool
 solve = (/=0) . foldr xor 0 . map (nimber . length) . filter ((=='I') . head) . group
 
--- minimum excluded numbers
-mex :: [Int] -> Int
-mex xs = (\\) [0..] xs !!0
-
 -- grundy numbers
 nimber :: Int -> Int
 nimber = (map g [0..] !!)
@@ -26,3 +22,7 @@ nimber = (map g [0..] !!)
     g n = mex $
         [ nimber i `xor` nimber (n-1-i) | i <- [0..n-1] ] ++
         [ nimber i `xor` nimber (n-2-i) | i <- [0..n-2] ]
+
+-- minimum excluded numbers
+mex :: [Int] -> Int
+mex xs = (\\) [0..] xs !!0
