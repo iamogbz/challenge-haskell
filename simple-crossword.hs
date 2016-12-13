@@ -2,38 +2,38 @@ import Data.List (transpose, permutations, intercalate)
 import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
 
-type Grid = [String]
+type Board = [String]
 type Words = [String]
 
 main :: IO ()
 main = do
-  grid <- getLines 10
-  t_words <- getLine
-  let ws = splitBy ';' t_words
-  putStrLn . intercalate "\n" . head $ allPossible grid ws
+  bd <- getLines 10
+  t_ws <- getLine
+  let ws = splitBy ';' t_ws
+  putStrLn . intercalate "\n" . head $ allPossible bd ws
 
 getLines :: Int -> IO [String]
 getLines 0 = return []
 getLines n = do          
-        x <- getLine         
-        xs <- getLines (n-1)    
-        return (x:xs)
+  x <- getLine         
+  xs <- getLines (n-1)    
+  return (x:xs)
 
 splitBy :: Eq a => a -> [a] -> [[a]]
 splitBy delimiter = filter (not . null) . foldr f [[]] 
   where f c l@(x:xs) | c == delimiter = []:l
                      | otherwise = (c:x):xs
 
-allPossible :: Grid -> Words -> [Grid]
-allPossible grid words = unique . filter (not . null) $ map (drillDown grid) (permutations words)
-  where drillDown grid [] = grid
-        drillDown grid (w:ws) = concat $ map (\g -> drillDown g ws) (nextPossible grid w)
+allPossible :: Board -> Words -> [Board]
+allPossible bd ws = unique . filter (not . null) $ map (allPossible' bd) (permutations ws)
+  where allPossible' bd [] = bd
+        allPossible' bd (w:ws) = concat $ map (\b -> allPossible' b ws) (nextPossible bd w)
 
-nextPossible :: Grid -> String -> [Grid]
-nextPossible grid word = unique
-  (map (fromMaybe []) . filter (/=Nothing) $ [tryWordOnGrid grid word]) ++
-  (map (rotateGridR . fromMaybe []) . filter (/=Nothing) $ [tryWordOnGrid rotatedGrid word])
-  where rotatedGrid = rotateGridL grid;
+nextPossible :: Board -> String -> [Board]
+nextPossible bd w = unique
+  (map (fromMaybe []) $ filter (/=Nothing) [tryWordOnBoard bd w]) ++
+  (map (rotateBoard . fromMaybe []) $ filter (/=Nothing) [tryWordOnBoard rotatedBoard w])
+  where rotatedBoard = rotateBoard' bd;
 
 unique :: Ord a => [a] -> [a]
 unique = unique' Set.empty where
@@ -42,41 +42,36 @@ unique = unique' Set.empty where
     then unique' a c
     else b : unique' (Set.insert b a) c
 
-rotateGridR :: Grid -> Grid
-rotateGridR = transpose . reverse
+rotateBoard :: Board -> Board
+rotateBoard = transpose . reverse
 
-rotateGridL :: Grid -> Grid
-rotateGridL = reverse . transpose
+rotateBoard' :: Board -> Board
+rotateBoard' = reverse . transpose
 
-tryWordOnGrid :: Grid -> String -> Maybe Grid
-tryWordOnGrid [] _          = Nothing
-tryWordOnGrid (row:rs) word = 
-  if matchAttempt == word then Just ((p++matchAttempt++s):rs)
-  else case tryWordOnGrid rs word of 
-    Just grid -> Just (row:grid)
+tryWordOnBoard :: Board -> String -> Maybe Board
+tryWordOnBoard [] _          = Nothing
+tryWordOnBoard (row:rs) w = 
+  if pw == w then Just ((p++pw++s):rs)
+  else case tryWordOnBoard rs w of 
+    Just bd -> Just (row:bd)
     _         -> Nothing
-  where (p:matchAttempt:s:_) = matchWordToRow word row
+  where (p,pw,s) = tryWordOnLine w row
     
-matchWordToRow :: String -> String -> [String]
-matchWordToRow word row = 
-  case extractFreeSpace row "" "" of
-    (p:m:s:_) -> [p,replaceIfMatch m word,s]
+tryWordOnLine :: String -> String -> (String, String, String)
+tryWordOnLine w row = 
+  case splitLine row of
+    (p,m,s) -> (p,tryWordInSpace m w,s)
 
-extractFreeSpace :: String -> String -> String -> [String]
-extractFreeSpace [] p m     = [p, m, ""]
-extractFreeSpace (c:cs) p m = 
-  if isBlock c then 
-    if length m > 1 then [p, m, c:cs]
-    else extractFreeSpace cs (p++m++[c]) ""
-  else extractFreeSpace cs p (m++[c])
+splitLine :: String -> (String, String, String)
+splitLine = splitLine' "" ""
+  where splitLine' p m []     = (p,m,"")
+        splitLine' p m (c:cs) = 
+          if c=='+' then 
+            if length m > 1 then (p, m, c:cs)
+            else splitLine' (p++m++[c]) "" cs
+          else splitLine' p (m++[c]) cs
   
-replaceIfMatch :: String -> String -> String
-replaceIfMatch toMatch word = 
-  if length toMatch == length word then
-    if replaced == word then word
-    else toMatch
-  else toMatch
-  where replaced = map (\(a,b) -> if isFree a then b else if a == b then b else '?') $ zip toMatch word
-
-isFree = (=='-')
-isBlock = (=='+')
+tryWordInSpace :: String -> String -> String
+tryWordInSpace s w = 
+  if length s == length w then if p == w then w else s else s
+  where p = map (\(a,b) -> if a=='-' || a==b then b else '?') $ zip s w
