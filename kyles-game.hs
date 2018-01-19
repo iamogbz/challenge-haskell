@@ -24,5 +24,6 @@ nimber = (map g [0..] !!)
         [ nimber i `xor` nimber (n-2-i) | i <- [0..n-2] ]
 
 -- minimum excluded numbers
+-- throws error on empty list
 mex :: [Int] -> Int
-mex xs = (\\) [0..] xs !!0
+mex = head . (\\) [0..]
