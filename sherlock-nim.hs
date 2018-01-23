@@ -4,7 +4,7 @@ import Data.List
 
 -- sherlock nim
 snim :: [Int] -> Int
-snim xs = mex (map snim (snims xs))
+snim = mex . map snim . nims
 
 -- minimum excluded numbers
 mex :: [Int] -> Int
