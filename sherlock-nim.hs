@@ -12,12 +12,13 @@ mex = head . (\\) [0..]
 
 -- next nim states
 nims :: [Int] -> [[Int]]
-nims xs = snims xs ++ rnims xs []
+nims xs = snims xs ++ rnims xs
 
 -- regular nim states
-rnims :: [Int] -> [Int] -> [[Int]]
-rnims [] _ = []
-rnims (x:xs) s = [i:(xs++s) | i <- [0..x-1]] ++ rnims xs (x:s)
+rnims :: [Int] -> [[Int]]
+rnims xs = r xs []
+           where r [] _ = []
+                 r (y:ys) s = [i:(ys++s) | i <- [0..y-1]] ++ r ys (y:s)
 
 -- next sherlock nim states
 snims :: [Int] -> [[Int]]
