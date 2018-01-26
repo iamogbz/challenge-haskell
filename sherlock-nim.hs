@@ -3,24 +3,16 @@ import Data.Bits
 import Data.List
 
 -- sherlock nim
-snim :: [Int] -> Int
-snim = mex . map snim . nims
+-- number of piles is a prime number as stated by the challenge
+-- the only even prime is 2 which reduces to a Wythoff game
+-- otherwise nimber always equals xor(piles[])
+-- https://www.hackerrank.com/contests/world-codesprint-8/challenges/sherlock-and-nim
+nimber :: [Int] -> Int
+nimber (a:b:[]) = if elem (sort [a,b]) (take (1 + max a b) wythoff_pairs) then 0 else 1
+nimber xs = if mod (length xs) 2 == 1 then foldr xor 0 xs else error("You lied! That's not a prime!")
 
--- minimum excluded numbers
-mex :: [Int] -> Int
-mex = head . (\\) [0..]
-
--- next nim states
-nims :: [Int] -> [[Int]]
-nims xs = snims xs ++ rnims xs
-
--- regular nim states
-rnims :: [Int] -> [[Int]]
-rnims xs = r xs []
-           where r [] _ = []
-                 r (y:ys) s = [i:(ys++s) | i <- [0..y-1]] ++ r ys (y:s)
-
--- next sherlock nim states
-snims :: [Int] -> [[Int]]
-snims xs = if n > 0 then [map (subtract i) xs | i <- [1..n]] else []
-           where n = minimum xs
+-- Wythoff array pairs
+-- https://en.wikipedia.org/wiki/Wythoff_array
+wythoff_pairs :: [[Int]]
+wythoff_pairs = [map floor [x * phi, x * phi**2] | x <- [0..]]
+                where phi =  (1 + sqrt 5) / 2
