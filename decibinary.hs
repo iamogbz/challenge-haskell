@@ -9,14 +9,14 @@ decibinary = ((concat $ map genDecibinary [0..]) !!)
 -- TODO!! OPTIMISE THIS BOTTLENECK!!
 -- generate all valid decibinary values of decimal number
 genDecibinary :: Int -> [Int]
-genDecibinary n = sort . map joinDigits $ bfs (next []) [(toBase 2 n)] []
+genDecibinary = sort . map joinDigits . bfs [] (next []) . replicate 1 . toBase 2
     where next _ (_:[]) = []
           next seen (n:m:xs) = [seen++[n-x, m + x*2]++xs | x <- [1..n], m+x*2 < 10] ++ next (seen++[n]) (m:xs)
 
 -- breadth first search function (with pruning of duplicates)
-bfs :: (Eq a, Ord a) => (a -> [a]) -> [a] -> [a] -> [a]
-bfs _ [] _ = []
-bfs f x s = x ++ bfs f xs seen
+bfs :: (Eq a, Ord a) => [a] -> (a -> [a]) -> [a] -> [a]
+bfs _ _ [] = []
+bfs s f x = x ++ bfs seen f xs
     where seen = x ++ s
           xs = unique $ filter (\a -> notElem a seen) (concatMap f x)
           unique = map head . group . sort
