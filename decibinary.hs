@@ -9,7 +9,7 @@ main = interact $ unlines . map show . tail . lines
 deciBin :: Int -> Int
 deciBin = (deciBins [0] !!)
   where deciBins [] = []
-        deciBins xs = xs++(deciBins . unique . filter (\x -> x `mod` 10 /= 9) . concat $ [[x+1, x+9, toBin $ 1 + fromBin x] | x <- xs])
+        deciBins xs = xs++(deciBins . filter (\x -> x `mod` 10 /= 9) . unique . concat $ [[x+1, x+9, toBin $ 1 + fromBin x] | x <- xs])
 
 unique :: Ord a => [a] -> [a]
 unique = map head . group . sort
