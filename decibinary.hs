@@ -1,24 +1,47 @@
-import Numeric
-import Data.Char
 import Data.List
-import qualified Data.Set as Set
 
 main :: IO ()
-main = interact $ unlines . map show . tail . lines
-        
-deciBin :: Int -> Int
-deciBin = (deciBins [0] !!)
-  where deciBins [] = []
-        deciBins xs = xs++(deciBins . filter (\x -> x `mod` 10 /= 9) . unique . concat $ [[x+1, x+9, toBin $ 1 + fromBin x] | x <- xs])
+main = interact $ unlines . map (show . decibinary . readInt) . tail . lines
 
-unique :: Ord a => [a] -> [a]
-unique = map head . group . sort
+-- get decibinary value at a given index
+decibinary :: Int -> Int
+decibinary = ((concat $ map genDecibinary [0..]) !!)
+-- TODO!! OPTIMISE THIS BOTTLENECK!!
+-- generate all valid decibinary values of decimal number
+genDecibinary :: Int -> [Int]
+genDecibinary n = sort . map joinDigits $ bfs (next []) [(toBase 2 n)] []
+    where next _ (_:[]) = []
+          next seen (n:m:xs) = [seen++[n-x, m + x*2]++xs | x <- [1..n], m+x*2 < 10] ++ next (seen++[n]) (m:xs)
 
-toBin :: Int -> Int
-toBin 0 = 0
-toBin n = read . concat . map show $ reverse (helper n)
-  where helper 0 = []
-        helper n = let (q,r) = n `divMod` 2 in r : helper q
+-- breadth first search function (with pruning of duplicates)
+bfs :: (Eq a, Ord a) => (a -> [a]) -> [a] -> [a] -> [a]
+bfs _ [] _ = []
+bfs f x s = x ++ bfs f xs seen
+    where seen = x ++ s
+          xs = unique $ filter (\a -> notElem a seen) (concatMap f x)
+          unique = map head . group . sort
 
-fromBin :: Int -> Int
-fromBin = foldl' (\acc x -> acc * 2 + digitToInt x) 0 . show
+-- convert from base * to base *
+switchBase :: Int -> Int -> [Int] -> [Int]
+switchBase from to num = toBase to (fromBase from num)
+
+-- convert from base * to base 10
+fromBase :: Int -> [Int] -> Int
+fromBase b n = round $ foldr1 (+) [fromIntegral d * fromIntegral b **p | (d,p) <- zip (reverse n) [0..]]
+
+-- convert to base * from base 10
+toBase :: Int -> Int -> [Int]
+toBase _ 0 = [0]
+toBase b n = (toBase b (div n b)) ++ [(mod n b)]
+                        
+-- convert decibinary number to decimal value
+fromDecibinary :: Int -> Int
+fromDecibinary = joinDigits . switchBase 2 10 . reverse . digits
+    where digits 0 = [0]
+          digits n = (mod n 10) : digits (div n 10)
+
+-- convert list of integer digits to single integer
+joinDigits = readInt . concatMap show
+
+-- convert string to integer
+readInt = read::String->Int
