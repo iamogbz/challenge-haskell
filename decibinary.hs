@@ -32,6 +32,7 @@ fromBase b n = round $ foldr1 (+) [fromIntegral d * fromIntegral b **p | (d,p) <
 -- convert to base * from base 10
 toBase :: Int -> Int -> [Int]
 toBase _ 0 = [0]
+toBase 1 n = error "infinite base one"
 toBase b n = (toBase b (div n b)) ++ [(mod n b)]
                         
 -- convert decibinary number to decimal value
