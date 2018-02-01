@@ -1,4 +1,5 @@
 import Data.List
+import Data.Bits
 
 main :: IO ()
 main = interact $ unlines . map (show . decibinary . readInt) . tail . lines
@@ -6,20 +7,14 @@ main = interact $ unlines . map (show . decibinary . readInt) . tail . lines
 -- get decibinary value at a given index
 decibinary :: Int -> Int
 decibinary = ((concat $ map genDecibinary [0..]) !!)
--- TODO!! OPTIMISE THIS BOTTLENECK!!
+-- TODO!! UNDERSTAND HOW THE HELL THIS WORKS!!!
 -- generate all valid decibinary values of decimal number
 genDecibinary :: Int -> [Int]
-genDecibinary = sort . map fromDigits . bfs [] (next []) . replicate 1 . toBase 2
-    where next _ (_:[]) = []
-          next seen (n:m:xs) = [seen++[n-x, m + x*2]++xs | x <- [1..n], m+x*2 < 10] ++ next (seen++[n]) (m:xs)
-
--- breadth first search function (with pruning of duplicates)
-bfs :: (Eq a, Ord a) => [a] -> (a -> [a]) -> [a] -> [a]
-bfs _ _ [] = []
-bfs s f x = x ++ bfs seen f xs
-    where seen = x ++ s
-          xs = unique $ filter (\a -> notElem a seen) (concatMap f x)
-          unique = map head . group . sort
+genDecibinary = gen 20 0
+    -- d is num of digits, v is current integer built, s is decimal value
+    where gen d v s = if s < 0 || s > 9 * ((shiftL 1 (d+1)) - 1) then []
+                      else if s == 0 && d == -1 then [v]
+                      else concat [gen (d-1) (v*10 + i) (s - i*(shift 1 d)) | i <- [0..9]]
 
 -- convert to base * from base *
 switchBase :: Int -> Int -> [Int] -> [Int]
