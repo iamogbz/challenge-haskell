@@ -2,7 +2,7 @@ import Data.List (intercalate)
 import qualified Data.Map as Map
 
 -- test tree to del
-tree = (Branch 0 (Branch 1 (Leaf 0) (Branch 0 (Leaf 0) (Leaf 0))) (Branch 0 (Leaf 1) (Branch 1 (Leaf 0) (Leaf 1)))) 
+tree = (Branch 0 (Branch 1 (Leaf 0) (Branch 0 (Leaf 0) (Leaf 0))) (Branch 0 (Leaf 1) (Branch 1 (Leaf 0) (Leaf 1))))
 
 -- binary tree data structure
 data BTree = Leaf Int | Branch Int BTree BTree deriving Eq
@@ -13,6 +13,14 @@ instance Show BTree where show tree = case tree of
                                         where
                                             show' 0 = "."
                                             show' _ = "X"
+
+-- navigate binary tree using path as string "<>>"
+-- return value of node at destination
+navigate :: BTree -> String -> BTree
+navigate tree "" = tree
+navigate (Leaf n) xs = Leaf 0
+navigate (Branch n a b) (x:xs) | x == '<' = navigate a xs
+                               | x == '>' = navigate b xs
 
 -- generate list of results at each step
 simulate n r t = take n (sim rmap t)
@@ -27,8 +35,11 @@ simulate n r t = take n (sim rmap t)
 apply :: Map.Map [Int] Int -> Int -> BTree -> BTree
 apply rmap root (Leaf n) = Leaf $ rmap Map.! [0,n,0,root]
 apply rmap root (Branch n a b) = Branch (rmap Map.! [node b,n,node a,root]) (apply rmap n a) (apply rmap n b)
-                        where node (Leaf x) = x
-                              node (Branch x _ _) = x
+
+-- get tree node value
+node :: BTree -> Int
+node (Leaf x) = x
+node (Branch x _ _) = x
 
 -- append 0s to end of list
 pad l xs = xs ++ replicate (l - length xs) 0
