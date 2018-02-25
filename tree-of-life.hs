@@ -7,11 +7,12 @@ tree = (Branch 0 (Branch 1 (Leaf 0) (Branch 0 (Leaf 0) (Leaf 0))) (Branch 0 (Lea
 -- binary tree data structure
 data BTree = Leaf Int | Branch Int BTree BTree deriving Eq
 -- custom display for tree structure
-instance Show BTree where show (Leaf n) = show' n
-                          show (Branch n a b) = "(" ++ (intercalate " " [show a,show' n,show b]) ++ ")"
--- show helper
-show' 0 = "."
-show' _ = "X"
+instance Show BTree where show tree = case tree of
+                                        Leaf n -> show' n
+                                        Branch n a b -> "(" ++ (intercalate " " [show a,show' n,show b]) ++ ")"
+                                        where
+                                            show' 0 = "."
+                                            show' _ = "X"
 
 -- generate list of results at each step
 simulate n r t = take n (sim rmap t)
