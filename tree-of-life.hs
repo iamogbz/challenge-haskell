@@ -21,8 +21,8 @@ simulate n r t = tn : simulate (n-1) r tn where tn = apply r 0 t
 -- root = node value of tree root
 -- tree = tree sprouted from node
 apply :: [Int] -> Int -> BTree -> BTree
-apply r root (Leaf n) = Leaf $ update r [root,0,n,0]
-apply r root (Branch n a b) = Branch (update r [root,node a,n,node b]) (apply r n a) (apply r n b)
+apply r root (Leaf n) = Leaf $ update r [0,n,0,root]
+apply r root (Branch n a b) = Branch (update r [node b,n,node a,root]) (apply r n a) (apply r n b)
                         where node (Leaf x) = x
                               node (Branch x _ _) = x
 
@@ -30,7 +30,7 @@ apply r root (Branch n a b) = Branch (update r [root,node a,n,node b]) (apply r 
 -- r = rule binary representation
 -- c = cell - [root, node, left, right]
 update :: [Int] -> [Int] -> Int
-update r c = r !! fromBase 2 (reverse $ map fromIntegral c)
+update r c = r !! fromBase 2 (map fromIntegral c)
 
 -- binary representation of rule
 -- rule 6 => [0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0]
