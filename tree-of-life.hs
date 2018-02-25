@@ -1,4 +1,5 @@
 import Data.List (intercalate)
+import qualified Data.Map as Map
 
 -- test tree to del
 tree = (Branch 0 (Branch 1 (Leaf 0) (Branch 0 (Leaf 0) (Leaf 0))) (Branch 0 (Leaf 1) (Branch 1 (Leaf 0) (Leaf 1)))) 
@@ -13,30 +14,28 @@ show' 0 = "."
 show' _ = "X"
 
 -- generate list of results at each step
-simulate 0 _ _ = []
-simulate n r t = tn : simulate (n-1) r tn where tn = apply r 0 t
+simulate n r t = take n (sim rmap t)
+    where sim r t = t : sim rmap (apply rmap 0 t)
+          -- map all possible value to the rule result
+          rmap = Map.fromList [(pad 4 $ toBase 2 x, r !! x) | x <- [0..15]]
 
 -- apply rule to complete BTree
--- r = rule binary representation
+-- rmap = all possible rule results [0000...1111]
 -- root = node value of tree root
 -- tree = tree sprouted from node
-apply :: [Int] -> Int -> BTree -> BTree
-apply r root (Leaf n) = Leaf $ update r [0,n,0,root]
-apply r root (Branch n a b) = Branch (update r [node b,n,node a,root]) (apply r n a) (apply r n b)
+apply :: Map.Map [Int] Int -> Int -> BTree -> BTree
+apply rmap root (Leaf n) = Leaf $ rmap Map.! [0,n,0,root]
+apply rmap root (Branch n a b) = Branch (rmap Map.! [node b,n,node a,root]) (apply rmap n a) (apply rmap n b)
                         where node (Leaf x) = x
                               node (Branch x _ _) = x
 
--- update a cell
--- r = rule binary representation
--- c = cell - [root, node, left, right]
-update :: [Int] -> [Int] -> Int
-update r c = r !! fromBase 2 (map fromIntegral c)
+-- append 0s to end of list
+pad l xs = xs ++ replicate (l - length xs) 0
 
 -- binary representation of rule
 -- rule 6 => [0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0]
 rule :: Int -> [Int]
 rule = pad 16 . toBase 2
-    where pad l xs = xs ++ replicate (l - length xs) 0
 
 -- convert from base * to base 10
 -- order input list from least significant to most
