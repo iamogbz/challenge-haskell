@@ -47,8 +47,8 @@ navigate (Branch n a b) (x:xs) | x == '<' = navigate a xs
                                | x == '>' = navigate b xs
 
 -- generate list of results at each step
-simulate n r t = take n (sim rmap t)
-    where sim r t = t : sim rmap (apply rmap 0 t)
+simulate r t = sim t
+    where sim t = t : sim (apply rmap 0 t)
           -- map all possible value to the rule result
           rmap = Map.fromList [(pad 4 $ toBase 2 x, r !! x) | x <- [0..15]]
 
