@@ -1,8 +1,17 @@
 import Data.List (intercalate)
 import qualified Data.Map as Map
 
--- test tree to del
-tree = (Branch 0 (Branch 1 (Leaf 0) (Branch 0 (Leaf 0) (Leaf 0))) (Branch 0 (Leaf 1) (Branch 1 (Leaf 0) (Leaf 1))))
+main = do
+    a0 <- getLine
+    let r = rule $ (read::String->Int) a0
+    a1 <- getLine
+    let t = (read::String->BTree) a1
+    let sims = (simulate r t !!)
+    a2 <- getLine
+    let n = (read::String->Int) a2
+    a3 <- getContents
+    let an = tail $ scanl (\(a,_) (x:y:[]) -> (a + read x, tail $ init y)) (0,"") $ map words $ lines a3
+    putStrLn $ unlines $ [show $ Leaf $ node $ navigate (sims i) p | (i,p) <- an]
 
 -- binary tree data structure
 data BTree = Empty | Leaf Int | Branch Int BTree BTree deriving Eq
