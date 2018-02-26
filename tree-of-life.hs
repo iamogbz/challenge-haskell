@@ -5,14 +5,38 @@ import qualified Data.Map as Map
 tree = (Branch 0 (Branch 1 (Leaf 0) (Branch 0 (Leaf 0) (Leaf 0))) (Branch 0 (Leaf 1) (Branch 1 (Leaf 0) (Leaf 1))))
 
 -- binary tree data structure
-data BTree = Leaf Int | Branch Int BTree BTree deriving Eq
+data BTree = Empty | Leaf Int | Branch Int BTree BTree deriving Eq
 -- custom display for tree structure
 instance Show BTree where show tree = case tree of
+                                        Empty -> "()"
                                         Leaf n -> show' n
                                         Branch n a b -> "(" ++ (intercalate " " [show a,show' n,show b]) ++ ")"
                                         where
                                             show' 0 = "."
                                             show' _ = "X"
+-- custom read for binary tree struct
+instance Read BTree where readsPrec _ = (:[]) . parse seed
+-- empty node
+seed = Branch (-1) Empty Empty
+-- parse tree
+parse (Branch _ left Empty) "" = (left,"")
+parse t "" = (t,"")
+parse t@(Branch n left right) (x:xs) = case x of
+    '(' -> let (tree, rem) = parse seed xs in 
+        case left of
+            Empty -> parse (Branch n tree right) rem
+            _ -> parse (Branch n left tree) rem
+    ')' -> (Branch n left right, xs)
+    ' ' -> parse t xs
+    _ -> case t of
+        Branch _ Empty _ -> parse (Branch n (Leaf $ parse' x) right) xs
+        Branch (-1) _ _ -> parse (Branch (parse' x) left right) xs
+        Branch _ _ Empty -> parse (Branch n left (Leaf $ parse' x)) xs
+        where
+            -- parse leaf
+            parse' 'X' = 1
+            parse' '.' = 0
+            parse' ch = -1
 
 -- navigate binary tree using path as string "<>>"
 -- return value of node at destination
