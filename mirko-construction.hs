@@ -24,18 +24,18 @@ simulate [] = []
 simulate xs@((_, _, i):_) = i:simulate nxs
     where
         nxs = prune $ sortBy order $ next xs
-        next xs = [(a + b, b, i) | (a, b, i) <- xs]
+        next xs = [(a + m, m, i) | (a, m, i) <- xs]
 
 prune :: [TRPL] -> [TRPL]
 prune [] = []
 prune (x:xs) = x:prune' x xs
     where
         prune' _ [] = []
-        prune' (x@(a, b, i)) (y@(c, d, j):ys) = if b < d
+        prune' (x@(_, m, _)) (y@(_, n, _):ys) = if m < n
                                                 then y:prune' x ys
                                                 else prune' x ys
 
 order :: TRPL -> TRPL -> Ordering
-order (a, b, i) (c, d, j) =  if a == c 
-                             then compare j i
-                             else compare c a
+order (a, _, i) (b, _, j) = if a == b
+                            then compare j i
+                            else compare b a
