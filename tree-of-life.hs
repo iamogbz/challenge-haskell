@@ -1,4 +1,3 @@
-import Data.List (intercalate)
 import qualified Data.Map as Map
 
 main = do
@@ -47,8 +46,12 @@ parse t@(Branch n left right) (x:xs) = case x of
             parse' '.' = 0
             parse' ch = -1
 
--- navigate binary tree using path as string "<>>"
--- return value of node at destination
+{-
+Navigate binary tree using string as path
+@param BTree to navigate
+@param String e.g. "<>>" i.e. right branch of right branch of left branch of tree node
+@return BTree node at destination
+-}
 navigate :: BTree -> String -> BTree
 navigate tree "" = tree
 navigate (Leaf n) xs = Leaf 0
@@ -61,10 +64,13 @@ simulate r = sim
           -- map all possible value to the rule result
           rmap = Map.fromList [(pad 4 $ toBase 2 x, r !! x) | x <- [0..15]]
 
--- apply rule to complete BTree
--- rmap = all possible rule results [0000...1111]
--- root = node value of tree root
--- tree = tree sprouted from node
+{-
+Apply rule to entire BTree
+@param Map.Map all possible rule results [0000...1111]
+@param Int node value of parent
+@param BTree tree sprouted from parent
+@return BTree tree with rule applied
+-}
 apply :: Map.Map [Int] Int -> Int -> BTree -> BTree
 apply rmap root (Leaf n) = Leaf $ rmap Map.! [0, n, 0, root]
 apply rmap root (Branch n a b) = Branch (rmap Map.! [node b, n, node a, root]) (apply rmap n a) (apply rmap n b)
@@ -77,20 +83,30 @@ node (Branch x _ _) = x
 -- append 0s to end of list
 pad l xs = xs ++ replicate (l - length xs) 0
 
--- binary representation of rule
--- rule 6 => [0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0]
+{-
+Binary representation of rule e.g. rule 6 => [0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0]
+@param Int decimal representation of rule
+@return [Int] binary represenation of rule
+-}
 rule :: Int -> [Int]
 rule = pad 16 . toBase 2
 
--- convert from base * to base 10
--- order input list from least significant to most
--- e.g. [0,1,1] => 6
+{-
+Convert from any* base to base 10. e.g. [0,1,1] => 6
+@param Int the base to convert from in decimal
+@param [Int] the list of digits in source base ordered by increasing significance
+@return Int decimal representation of input
+--
+-}
 fromBase :: (Enum a, Floating a, RealFrac a) => a -> [a] -> Int
 fromBase b xs = sum $ zipWith (\x y -> fromIntegral $ round (x * (b**y))) xs [0..]
 
--- convert to base * from base 10
--- result is ordered from least significant to most
--- e.g. 6 => [0,1,1]
+{-
+Convert to any* base from base 10. e.g. 6 => [0,1,1]
+@param Int the target base
+@param Int the decimal number to convert
+@return [Int] result is ordered from least significant to most
+-}
 toBase :: Int -> Int -> [Int]
 toBase _ 0 = []
 toBase b n = mod n b : toBase b (div n b)
