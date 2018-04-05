@@ -23,17 +23,17 @@ simulate :: [TRPL] -> [Int]
 simulate [] = []
 simulate xs@((_, _, i):_) = i:simulate nxs
     where
-        nxs = prune $ sortBy order $ next xs
+        nxs = prune $ next xs
         next xs = [(a + m, m, i) | (a, m, i) <- xs]
 
 prune :: [TRPL] -> [TRPL]
-prune [] = []
-prune (x:xs) = x:prune' x xs
+prune = prune' [] . reverse
     where
-        prune' _ [] = []
-        prune' (x@(_, m, _)) (y@(_, n, _):ys) = if m < n
-                                                then y:prune' x ys
-                                                else prune' x ys
+        prune' s [] = s
+        prune' s [x] = x:s
+        prune' s (x@(a, _, i):y@(b, _, j):zs) = if a > b || a == b && i > j
+                                                then prune' s (x:zs)
+                                                else prune' (x:s) (y:zs)
 
 order :: TRPL -> TRPL -> Ordering
 order (a, _, i) (b, _, j) = if a == b
