@@ -16,13 +16,13 @@ main = do
 
 getLines :: Int -> IO [String]
 getLines 0 = return []
-getLines n = do          
-  x <- getLine         
-  xs <- getLines (n-1)    
+getLines n = do
+  x <- getLine
+  xs <- getLines (n-1)
   return (x:xs)
 
 splitBy :: Eq a => a -> [a] -> [[a]]
-splitBy delimiter = filter (not . null) . foldr f [[]] 
+splitBy delimiter = filter (not . null) . foldr f [[]]
   where f c l@(x:xs) | c == delimiter = []:l
                      | otherwise = (c:x):xs
 
@@ -52,28 +52,28 @@ rotateBoard' = reverse . transpose
 
 tryWordOnBoard :: Board -> String -> Maybe Board
 tryWordOnBoard [] _       = Nothing
-tryWordOnBoard (row:rs) w = 
+tryWordOnBoard (row:rs) w =
   if pw == w then Just ((p++pw++s):rs)
-  else case tryWordOnBoard rs w of 
+  else case tryWordOnBoard rs w of
     Just bd -> Just (row:bd)
     _         -> Nothing
   where (p,pw,s) = tryWordOnLine w row
-    
+
 tryWordOnLine :: String -> String -> (String, String, String)
-tryWordOnLine w row = 
+tryWordOnLine w row =
   case splitLine row of
     (p,m,s) -> (p,tryWordInSpace m w,s)
 
 splitLine :: String -> (String, String, String)
 splitLine = splitLine' "" ""
   where splitLine' p m []     = (p,m,"")
-        splitLine' p m (c:cs) = 
-          if c=='+' then 
+        splitLine' p m (c:cs) =
+          if c=='+' then
             if length m > 1 then (p, m, c:cs)
             else splitLine' (p++m++[c]) "" cs
           else splitLine' p (m++[c]) cs
-  
+
 tryWordInSpace :: String -> String -> String
-tryWordInSpace s w = 
+tryWordInSpace s w =
   if (length s == length w) && (p == w) then w else s
   where p = map (\(a,b) -> if a=='-' || a==b then b else '?') $ zip s w

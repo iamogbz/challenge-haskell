@@ -32,7 +32,7 @@ toBase :: Int -> Int -> [Int]
 toBase _ 0 = [0]
 toBase 1 n = error "infinite base one"
 toBase b n = toBase b (div n b) ++ [mod n b]
-                        
+
 -- convert decibinary number to decimal value
 fromDecibinary :: Int -> Int
 fromDecibinary = fromDigits . switchBase 10 2 . reverse . toDigits
@@ -40,7 +40,7 @@ fromDecibinary = fromDigits . switchBase 10 2 . reverse . toDigits
 -- convert single integer to list of integer toDigits
 toDigits 0 = []
 toDigits n = mod n 10 : toDigits (div n 10)
-          
+
 -- convert list of integer digits to single integer
 fromDigits = readInt . concatMap show
 

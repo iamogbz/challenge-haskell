@@ -10,9 +10,9 @@ main = do
 
 getLines :: Int -> IO [String]
 getLines 0 = return []
-getLines n = do          
-        x <- getLine         
-        xs <- getLines (n-1)    
+getLines n = do
+        x <- getLine
+        xs <- getLines (n-1)
         return (x:xs)
 
 solve :: [Int] -> [Int]

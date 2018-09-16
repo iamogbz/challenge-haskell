@@ -41,8 +41,8 @@ zx (a,b,c) = dx1*dy2 - dy1*dx2
           dy1 = snd b - snd a
           dx2 = fst c - fst b
           dy2 = snd c - snd b
- 
--- convert degrees to radians 
+
+-- convert degrees to radians
 radians = (*) (pi / 180)
--- convert radians to degrees 
+-- convert radians to degrees
 degrees = (*) (180 / pi)

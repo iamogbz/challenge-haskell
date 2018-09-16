@@ -32,7 +32,7 @@ seed = Branch (-1) Empty Empty
 parse (Branch _ left Empty) "" = (left, "")
 parse t "" = (t, "")
 parse t@(Branch n left right) (x:xs) = case x of
-    '(' -> let (tree, rem) = parse seed xs in 
+    '(' -> let (tree, rem) = parse seed xs in
         case left of
             Empty -> parse (Branch n tree right) rem
             _ -> parse (Branch n left tree) rem

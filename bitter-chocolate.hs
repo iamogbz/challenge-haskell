@@ -7,13 +7,13 @@ nimber = (map g [0..] !!)
     where
         g 0 = 1
         g x = mex $ map (nimber . fromBase 26) (possible $ toBase 26 x)
-    
+
 -- possible moves from a state
 possible :: (Num a) => [Int] -> [[a]]
 possible xs = if sorted xs
                 then [map fromIntegral ((++) (map (min i) (take c xs)) (drop c xs)) | (n,c) <- zip xs [1..], i <- [0..n-1]]
                 else []
-    
+
 -- check if list is sorted
 sorted :: Ord a => [a] -> Bool
 sorted [] = True
