@@ -1,22 +1,24 @@
+-- https://www.hackerrank.com/challenges/lambda-march-concave-polygon
+
 import Data.List
 import Data.Ord
 
 type Coords = (Double, Double) -- x,y coordinates
 
 -- polygon check
-is_convex xs = all_negative || all_positive
+isConvex xs = isAllNegative || isAllPositive
     where xp = xproducts xs
-          all_negative = all (<0) xp
-          all_positive = all (>=0) xp
+          isAllNegative = all (<0) xp
+          isAllPositive = all (>=0) xp
 
 -- consecutive edge pairs
 xproducts :: [Coords] -> [Double]
 xproducts = rs [] . order
-    where rs [] (a:[]) = [0] -- single point
-          rs [] (a:b:[]) = [0] -- straight line
-          rs (a:b:_) (c:[]) = [zx (c,a,b)]
-          rs (a:s) (b:c:[]) = (zx (b,c,a)):(rs (a:s++[b]) [c])
-          rs s (a:b:c:z) = (zx (a,b,c)):(rs (s++[a]) (b:c:z))
+    where rs [] [a] = [0] -- single point
+          rs [] [a,b] = [0] -- straight line
+          rs (a:b:_) [c] = [zx (c,a,b)]
+          rs (a:s) [b,c] = zx (b,c,a) : rs (a:s++[b]) [c]
+          rs s (a:b:c:z) = zx (a,b,c) : rs (s++[a]) (b:c:z)
 
 -- return list of coordinates in non intersecting order
 order :: [Coords] -> [Coords]

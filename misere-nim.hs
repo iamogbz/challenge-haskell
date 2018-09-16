@@ -1,3 +1,5 @@
+-- https://www.hackerrank.com/challenges/misere-nim-1
+
 import Control.Monad
 import Data.Bits
 import Data.List

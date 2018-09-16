@@ -1,3 +1,5 @@
+-- https://www.hackerrank.com/challenges/bitter-chocolate
+
 import Data.List
 
 nimber :: Int -> Int
@@ -25,10 +27,10 @@ mex = head . (\\) [0..]
 -- convert from base * to base 10
 -- order input list from least significant to most
 fromBase :: (Enum a, Floating a, RealFrac a) => a -> [a] -> Int
-fromBase b xs = foldr (+) 0 $ zipWith (\x y -> fromIntegral $ round (x * (b**y))) xs [0..]
+fromBase b xs = sum $ zipWith (\x y -> fromIntegral $ round (x * (b**y))) xs [0..]
 
 -- convert to base * from base 10
 -- result is ordered from least significant to most
 toBase :: Int -> Int -> [Int]
 toBase _ 0 = []
-toBase b n = (mod n b):toBase b (div n b)
+toBase b n = mod n b : toBase b (div n b)

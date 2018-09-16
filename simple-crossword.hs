@@ -1,3 +1,5 @@
+-- https://www.hackerrank.com/challenges/crosswords-101
+
 import Data.List (transpose, permutations, intercalate)
 import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
@@ -27,12 +29,12 @@ splitBy delimiter = filter (not . null) . foldr f [[]]
 allPossible :: Board -> Words -> [Board]
 allPossible bd ws = unique . filter (not . null) $ map (allPossible' bd) (permutations ws)
   where allPossible' bd [] = bd
-        allPossible' bd (w:ws) = concat $ map (\b -> allPossible' b ws) (nextPossible bd w)
+        allPossible' bd (w:ws) = concatMap (`allPossible'` ws) (nextPossible bd w)
 
 nextPossible :: Board -> String -> [Board]
 nextPossible bd w = unique
   (map (fromMaybe []) $ filter (/=Nothing) [tryWordOnBoard bd w]) ++
-  (map (rotateBoard . fromMaybe []) $ filter (/=Nothing) [tryWordOnBoard rotatedBoard w])
+  map (rotateBoard . fromMaybe []) (filter (/=Nothing) [tryWordOnBoard rotatedBoard w])
   where rotatedBoard = rotateBoard' bd;
 
 unique :: Ord a => [a] -> [a]
@@ -49,7 +51,7 @@ rotateBoard' :: Board -> Board
 rotateBoard' = reverse . transpose
 
 tryWordOnBoard :: Board -> String -> Maybe Board
-tryWordOnBoard [] _          = Nothing
+tryWordOnBoard [] _       = Nothing
 tryWordOnBoard (row:rs) w = 
   if pw == w then Just ((p++pw++s):rs)
   else case tryWordOnBoard rs w of 
@@ -73,5 +75,5 @@ splitLine = splitLine' "" ""
   
 tryWordInSpace :: String -> String -> String
 tryWordInSpace s w = 
-  if length s == length w then if p == w then w else s else s
+  if (length s == length w) && (p == w) then w else s
   where p = map (\(a,b) -> if a=='-' || a==b then b else '?') $ zip s w

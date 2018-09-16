@@ -1,3 +1,5 @@
+-- https://www.hackerrank.com/challenges/game-of-kyles
+
 import Control.Monad
 import Data.Bits
 import Data.List
@@ -12,7 +14,7 @@ main = do
     putStrLn $ if solve pins then "WIN" else "LOSE"
 
 solve :: String -> Bool
-solve = (/=0) . foldr xor 0 . map (nimber . length) . filter ((=='I') . head) . group
+solve = (/=0) . foldr (xor . nimber . length) 0 . filter ((=='I') . head) . group
 
 -- grundy numbers
 nimber :: Int -> Int
