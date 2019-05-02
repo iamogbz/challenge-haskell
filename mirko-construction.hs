@@ -1,7 +1,10 @@
+-- https://www.hackerrank.com/challenges/mirko-at-construction-site
+
 import Data.List
 import Data.IntMap (IntMap)
 import qualified Data.IntMap as IM
 import Control.Monad
+import System.Random
 
 main = do
     (s:q:_) <- map (read::String->Int) . words <$> getLine
@@ -36,7 +39,7 @@ unique = map head . group . sort
 
 simulate :: [Int] -> [Building] -> IntMap Int -> IntMap Int
 simulate [] _ rs = rs
-simulate (q:qs) p@[B _ _ i] rs = simulate qs p (IM.insert q i rs) 
+simulate (q:qs) p@[B _ _ i] rs = simulate qs p (IM.insert q i rs)
 simulate qq@(q:qs) pp@(B m a i:ps@(B n b j:_)) rs
     | aq < bq = simulate qq ps rs
     | otherwise = simulate qs (last pp1:pp2) (IM.insert q (maximum $ map k pp1) rs)
@@ -44,3 +47,12 @@ simulate qq@(q:qs) pp@(B m a i:ps@(B n b j:_)) rs
         aq = a + m * q
         bq = b + n * q
         (pp1, pp2) = span (\(B o c _) -> aq == c + o * q) pp
+
+randomNs :: Int -> Int -> Int -> IO [Int]
+randomNs a z n = replicateM n $ randomRIO (a,z)
+
+test = do
+    as <- randomNs 0 100000 100000
+    bs <- randomNs 0 100000 100000
+    let xs = prep as bs
+    return xs
